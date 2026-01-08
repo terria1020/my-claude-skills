@@ -47,6 +47,52 @@ If no linter available:
 docker build --no-cache --progress=plain -f Dockerfile . 2>&1 | head -20
 ```
 
+### nerdctl (containerd)
+
+Docker-compatible CLI for containerd:
+
+```bash
+# Build with syntax check
+nerdctl build .
+nerdctl build -f Dockerfile.dev .
+
+# With lima (macOS)
+lima nerdctl build .
+lima nerdctl build -f Dockerfile.dev .
+```
+
+### Podman
+
+Daemonless container engine:
+
+```bash
+# Build Dockerfile
+podman build .
+podman build -f Dockerfile.dev .
+
+# Validate Dockerfile syntax (parse only)
+podman build --no-cache -f Dockerfile . 2>&1 | head -20
+```
+
+## Container Runtime Detection
+
+Detect which container runtime is available:
+
+```bash
+# Priority order: docker > nerdctl > podman
+if command -v docker &>/dev/null; then
+    RUNTIME="docker"
+elif command -v nerdctl &>/dev/null; then
+    RUNTIME="nerdctl"
+elif command -v lima &>/dev/null && lima nerdctl version &>/dev/null; then
+    RUNTIME="lima nerdctl"
+elif command -v podman &>/dev/null; then
+    RUNTIME="podman"
+else
+    echo "No container runtime found"
+fi
+```
+
 ## Docker Compose
 
 ### Validate Configuration
@@ -77,6 +123,30 @@ docker compose -f docker-compose.yml -f docker-compose.override.yml config -q
 | `docker-compose.yaml` | Standard |
 | `compose.yml` | Compose V2 |
 | `compose.yaml` | Compose V2 |
+
+### nerdctl compose
+
+```bash
+# Validate config
+nerdctl compose config
+nerdctl compose config -q
+
+# With lima (macOS)
+lima nerdctl compose config
+lima nerdctl compose -f docker-compose.yml config -q
+```
+
+### Podman Compose
+
+```bash
+# podman-compose (Python-based, separate install)
+podman-compose config
+podman-compose -f docker-compose.yml config
+
+# podman compose (built-in, Podman 3.0+)
+podman compose config
+podman compose -f docker-compose.yml config
+```
 
 ## Kubernetes Manifests
 
@@ -178,6 +248,19 @@ grep -l "kind: Deployment\|kind: Service\|kind: Pod" *.yaml
 ```bash
 # Docker
 command -v docker && docker --version
+
+# nerdctl
+command -v nerdctl && nerdctl --version
+
+# lima (macOS)
+command -v lima && lima --version
+lima nerdctl version 2>/dev/null
+
+# Podman
+command -v podman && podman --version
+
+# podman-compose
+command -v podman-compose && podman-compose --version
 
 # hadolint
 command -v hadolint && hadolint --version

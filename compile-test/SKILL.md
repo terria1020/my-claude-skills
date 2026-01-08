@@ -2,6 +2,47 @@
 name: compile-test
 description: |
   Compile and syntax validation for multi-language projects. Supports Python, Java (native/Maven/Gradle), JavaScript/TypeScript, Dockerfile, Docker Compose, and Kubernetes manifests. Use this skill when: (1) User requests compile/build test with commands like "/compile-test" or "컴파일 테스트", (2) Before creating commits or PRs to validate code, (3) Checking syntax errors in container configuration files. Includes environment pre-checks for containerized, virtual environments, and air-gapped networks.
+allowed-tools:
+  # Environment checks
+  - Bash(command -v *)
+  - Bash(which *)
+  - Bash(* --version)
+  - Bash(curl -s --connect-timeout * https://google.com *)
+  - Bash([ -f * ] && echo *)
+  - Bash([ -d * ] && echo *)
+  # Python
+  - Bash(python3 -m py_compile *)
+  - Bash(python -m py_compile *)
+  - Bash(mypy *)
+  - Bash(ruff check *)
+  - Bash(pylint *)
+  # Java
+  - Bash(javac *)
+  - Bash(mvn compile*)
+  - Bash(./mvnw compile*)
+  - Bash(gradle compile*)
+  - Bash(./gradlew compile*)
+  # JavaScript/TypeScript
+  - Bash(tsc --noEmit*)
+  - Bash(npx tsc --noEmit*)
+  - Bash(npx eslint *)
+  # Container (Docker, nerdctl, Podman)
+  - Bash(hadolint *)
+  - Bash(docker build --check *)
+  - Bash(docker compose config*)
+  - Bash(nerdctl build *)
+  - Bash(nerdctl compose config*)
+  - Bash(lima nerdctl build *)
+  - Bash(lima nerdctl compose config*)
+  - Bash(podman build *)
+  - Bash(podman-compose config*)
+  - Bash(podman compose config*)
+  # Kubernetes
+  - Bash(kubectl apply --dry-run=client *)
+  - Bash(kubeval *)
+  # File detection
+  - Bash(find * -name *)
+  - Bash(ls *)
 ---
 
 # Compile Test
@@ -42,8 +83,8 @@ command -v <tool> &>/dev/null || { echo "SKIP: <tool> not installed"; return; }
 | Maven | `mvn` or `./mvnw` | `command -v mvn \|\| [ -f mvnw ]` |
 | Gradle | `gradle` or `./gradlew` | `command -v gradle \|\| [ -f gradlew ]` |
 | TypeScript | `tsc` | `[ -f node_modules/.bin/tsc ] \|\| command -v tsc` |
-| Dockerfile | `hadolint` or `docker` | `command -v hadolint \|\| command -v docker` |
-| Compose | `docker` | `command -v docker` |
+| Dockerfile | `hadolint`, `docker`, `nerdctl`, `podman` | `command -v hadolint \|\| command -v docker \|\| command -v nerdctl \|\| command -v podman` |
+| Compose | `docker`, `nerdctl`, `podman` | `command -v docker \|\| command -v nerdctl \|\| command -v podman` |
 | Kubernetes | `kubectl` or `kubeval` | `command -v kubectl \|\| command -v kubeval` |
 
 **Example skip output:**
@@ -108,8 +149,8 @@ java --version && which java
 | Maven | `mvn compile -q` | BUILD SUCCESS |
 | Gradle | `./gradlew compileJava` | BUILD SUCCESSFUL |
 | TypeScript | `tsc --noEmit` | Exit code 0 |
-| Dockerfile | `hadolint <file>` or `docker build --check .` | No errors |
-| Compose | `docker compose config -q` | No output = valid |
+| Dockerfile | `hadolint <file>` or `docker/nerdctl/podman build --check .` | No errors |
+| Compose | `docker/nerdctl/podman compose config -q` | No output = valid |
 | Kubernetes | `kubectl apply --dry-run=client -f <file>` | created (dry run) |
 
 For detailed commands and options, refer to the language-specific reference files.

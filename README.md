@@ -10,41 +10,51 @@ Claude Code 커스텀 스킬 모음
 
 ## Claude Code에 스킬 추가하기
 
+스킬은 파일 시스템 경로에 직접 배치해야 합니다.
+
 ### 전역 설정 (모든 프로젝트에 적용)
 
-`~/.claude/settings.json` 파일 편집:
+`~/.claude/skills/` 디렉토리에 스킬 폴더 배치:
 
-```json
-{
-  "skills": [
-    "https://github.com/terria1020/my-claude-skills/tree/main/compile-test"
-  ]
-}
+```bash
+# 방법 1: 저장소 전체 클론
+cd ~/.claude/skills
+git clone https://github.com/terria1020/my-claude-skills.git
+
+# 방법 2: 특정 스킬만 복사
+mkdir -p ~/.claude/skills/compile-test
+cp -r /path/to/compile-test/* ~/.claude/skills/compile-test/
+```
+
+결과 구조:
+
+```
+~/.claude/skills/
+└── compile-test/
+    ├── SKILL.md
+    └── references/
 ```
 
 ### 프로젝트별 설정 (특정 프로젝트에만 적용)
 
-프로젝트 루트의 `.claude/settings.json` 파일 편집:
+프로젝트 루트의 `.claude/skills/` 디렉토리에 스킬 폴더 배치:
 
-```json
-{
-  "skills": [
-    "https://github.com/terria1020/my-claude-skills/tree/main/compile-test"
-  ]
-}
+```bash
+cd /your/project
+mkdir -p .claude/skills/compile-test
+cp -r /path/to/compile-test/* .claude/skills/compile-test/
 ```
 
-### 기존 설정이 있는 경우
+결과 구조:
 
-이미 다른 설정이 있다면 `skills` 배열만 추가:
-
-```json
-{
-  "existingKey": "existingValue",
-  "skills": [
-    "https://github.com/terria1020/my-claude-skills/tree/main/compile-test"
-  ]
-}
+```
+your-project/
+├── .claude/
+│   └── skills/
+│       └── compile-test/
+│           ├── SKILL.md
+│           └── references/
+└── src/
 ```
 
 ## 스킬 사용법
