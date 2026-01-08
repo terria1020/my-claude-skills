@@ -10,9 +10,9 @@ Claude Code 커스텀 스킬 모음
 
 ## Claude Code에 스킬 추가하기
 
-### 방법 1: 설정 파일에 직접 추가
+### 전역 설정 (모든 프로젝트에 적용)
 
-`~/.claude/settings.json` 파일에 추가:
+`~/.claude/settings.json` 파일 편집:
 
 ```json
 {
@@ -22,23 +22,34 @@ Claude Code 커스텀 스킬 모음
 }
 ```
 
-### 방법 2: Claude Code CLI로 추가
+### 프로젝트별 설정 (특정 프로젝트에만 적용)
 
-```bash
-claude settings add skills "https://github.com/terria1020/my-claude-skills/tree/main/compile-test"
+프로젝트 루트의 `.claude/settings.json` 파일 편집:
+
+```json
+{
+  "skills": [
+    "https://github.com/terria1020/my-claude-skills/tree/main/compile-test"
+  ]
+}
 ```
 
-### 방법 3: 대화 중 추가
+### 기존 설정이 있는 경우
 
-Claude Code 실행 후:
+이미 다른 설정이 있다면 `skills` 배열만 추가:
 
-```
-/add-skill https://github.com/terria1020/my-claude-skills/tree/main/compile-test
+```json
+{
+  "existingKey": "existingValue",
+  "skills": [
+    "https://github.com/terria1020/my-claude-skills/tree/main/compile-test"
+  ]
+}
 ```
 
 ## 스킬 사용법
 
-스킬이 추가되면 다음과 같이 사용:
+스킬 추가 후 Claude Code 재시작, 이후:
 
 ```
 /compile-test
