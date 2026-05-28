@@ -1,0 +1,4 @@
+interface:
+  display_name: "Jirabot"
+  short_description: "Use the local Jira CLI safely"
+  default_prompt: "Use $jirabot to inspect Jira tickets, boards, comments, and safe write operations."

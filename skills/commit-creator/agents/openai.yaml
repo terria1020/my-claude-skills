@@ -1,0 +1,4 @@
+interface:
+  display_name: "Commit Creator"
+  short_description: "Create Korean commits from local changes"
+  default_prompt: "Use $commit-creator to inspect my current changes and create a concise Korean commit."

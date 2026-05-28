@@ -1,0 +1,4 @@
+interface:
+  display_name: "Design Socratic Review"
+  short_description: "Socratic review for software design decisions"
+  default_prompt: "Use $design-socratic-review to review this design direction and check for XY Problem risk before implementation."

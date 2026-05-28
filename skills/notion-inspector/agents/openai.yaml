@@ -1,0 +1,4 @@
+interface:
+  display_name: "Notion Inspector"
+  short_description: "Inspect Notion pages, databases, blocks, and comments"
+  default_prompt: "Use $notion-inspector to inspect the relevant Notion page, database, blocks, or comments safely."

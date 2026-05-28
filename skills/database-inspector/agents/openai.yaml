@@ -1,0 +1,4 @@
+interface:
+  display_name: "Database Inspector"
+  short_description: "Inspect database schemas, tables, views, and data"
+  default_prompt: "Use $database-inspector to inspect the database schema and verify relevant table data safely."

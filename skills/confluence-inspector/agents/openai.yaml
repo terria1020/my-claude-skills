@@ -1,0 +1,4 @@
+interface:
+  display_name: "Confluence Inspector"
+  short_description: "Inspect Confluence pages, metadata, comments, and attachments"
+  default_prompt: "Use $confluence-inspector to inspect the relevant Confluence pages, metadata, comments, or attachments safely."

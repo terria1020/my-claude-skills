@@ -1,0 +1,4 @@
+interface:
+  display_name: "Experiment Builder"
+  short_description: "Turn uncertain ideas into runnable PoCs"
+  default_prompt: "Use $experiment-builder to turn this uncertain technical idea into a small runnable experiment with clear validation criteria."

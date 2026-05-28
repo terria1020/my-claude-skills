@@ -1,0 +1,4 @@
+interface:
+  display_name: "MR Creator"
+  short_description: "Create Korean merge requests from local changes"
+  default_prompt: "Use $mr-creator to inspect my current branch and create a concise Korean merge request."
