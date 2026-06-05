@@ -1,0 +1,4 @@
+interface:
+  display_name: "Testcode Creator"
+  short_description: "테스트 케이스 설계부터 코드 작성과 실행 검증까지"
+  default_prompt: "Use $testcode-creator to design, write, and run tests for my recent change."

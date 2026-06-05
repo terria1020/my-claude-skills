@@ -18,6 +18,7 @@ AI 에이전트용 커스텀 스킬 모음
 | [mr-creator](./skills/mr-creator/) | GitLab MR 또는 GitHub PR 생성 — remote URL로 호스팅 자동 감지, 한국어 제목·본문 작성 | |
 | [notion-inspector](./skills/notion-inspector/) | Notion 페이지·데이터베이스·블록 안전 조회 | [notion-api-cli](https://github.com/terria1020/notion-api-cli) |
 | [ssh-inspector](./skills/ssh-inspector/) | SSH 크레덴셜 wrapper CLI를 통해 원격 서버에 명령 실행 — 상태·로그 조회부터 서비스 재시작·배포 스크립트 실행까지 (쓰기 작업은 명시적 확인 후 실행) | [local-ssh-connect-cli](https://github.com/terria1020/local-ssh-connect-cli) |
+| [testcode-creator](./skills/testcode-creator/) | 변경사항의 테스트 케이스를 설계하고 테스트 코드 작성·실행 | |
 
 > 외부 의존성이 있는 스킬은 각 CLI를 `~/Github/<repo-name>`에 클론하고 README에 따라 크레덴셜을 설정해야 합니다.
 
@@ -83,6 +84,7 @@ my-claude-skills/
 │   ├── jirabot/
 │   ├── mr-creator/
 │   ├── notion-inspector/
-│   └── ssh-inspector/
+│   ├── ssh-inspector/
+│   └── testcode-creator/
 └── docs/plans/                    # 개발 계획 문서
 ```
