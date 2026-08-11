@@ -37,6 +37,20 @@ After cloning, follow the CLI's own README to configure credentials (`NOTION_API
 
 This CLI uses `NOTION_API_TOKEN` from its configured environment. Do not inspect `.env` files or credential files to debug authentication. Use direct Notion API calls only when this CLI is missing, fails for an environmental reason, or does not support the required operation.
 
+## Keeping Reads Small
+
+The CLI emits compact JSON with empty fields stripped. Narrow the read further rather than
+fetching broadly and filtering in your own head:
+
+- `--filter '<JSON>'` and `--sorts '<JSON>'` on `--query-database` push selection to Notion.
+- `--properties Name,Status` fetches only the columns you need.
+- `--no-ids` drops ids and urls. Use it only when you will not act on the results — ids are
+  required for `--get-table`, `--update-block`, and any follow-up write.
+- `--max-depth <n>` bounds `--find-child-pages`; `--deep` (descend into child pages) is off
+  by default and should stay off unless the task is about a whole subtree.
+- `--verbose-fields` and `--pretty` restore full/indented output when a value looks wrong
+  and you need to see the raw Notion shape.
+
 ## Workflow
 
 1. Discover the target:
@@ -60,9 +74,10 @@ This CLI uses `NOTION_API_TOKEN` from its configured environment. Do not inspect
      ```bash
      node ~/Github/notion-api-cli/notion-api-cli.js --get-database <db-id-or-url>
      ```
-   - Database rows:
+   - Database rows — read the schema first, then request only the columns you need:
      ```bash
-     node ~/Github/notion-api-cli/notion-api-cli.js --query-database <db-id-or-url> --limit 20
+     node ~/Github/notion-api-cli/notion-api-cli.js --query-database <db-id-or-url> --limit 20 \
+       --properties "<col1>,<col2>" --filter '{"property":"Status","select":{"equals":"Done"}}'
      ```
 
 3. Inspect related content carefully:
