@@ -33,9 +33,15 @@ If the file is missing, **stop** and instruct the user to clone it:
 git clone https://github.com/terria1020/local-confluence-api-cli ~/Github/local-confluence-api-cli
 ```
 
-After cloning, follow the CLI's own README to configure credentials (`CONFLUENCE_DOMAIN`, `CONFLUENCE_EMAIL`, `CONFLUENCE_API_TOKEN`). If credentials or `.env` are not set up, **stop** and direct the user to the CLI's setup guide — do not attempt to read credential files or work around missing auth.
+After cloning, follow the CLI's own README to create `credentials.json` beside `confluence-api-cli.js`. Select the intended configured site with `--site <site-id>`; use `--list-sites` to obtain safe site metadata when necessary. If `credentials.json` is missing or the needed site ID is unavailable, **stop** and direct the user to the CLI setup guide — do not attempt to read credential files or work around missing auth.
 
-This CLI uses `CONFLUENCE_DOMAIN`, `CONFLUENCE_EMAIL`, and `CONFLUENCE_API_TOKEN` from its configured environment. Do not inspect `.env` files or credential files to debug authentication. Use direct Confluence API calls only when this CLI is missing, fails for an environmental reason, or does not support the required operation.
+This CLI uses `credentials.json` and has no `.env` compatibility. Its default file path is beside the CLI script; use `--credentials-path <path>` only when the user provides an alternate safe path. Do not inspect `.env` files or credential files to debug authentication. Use direct Confluence API calls only when this CLI is missing, fails for an environmental reason, or does not support the required operation.
+
+Before the first site-scoped command, list available site metadata without exposing secrets:
+
+```bash
+node ~/Github/local-confluence-api-cli/confluence-api-cli.js --list-sites
+```
 
 ## Workflow
 
@@ -43,32 +49,32 @@ This CLI uses `CONFLUENCE_DOMAIN`, `CONFLUENCE_EMAIL`, and `CONFLUENCE_API_TOKEN
    - Use the user-provided page ID, title, space ID, or URL-derived ID when available.
    - If the target is described by keyword, use CQL search:
      ```bash
-     node ~/Github/local-confluence-api-cli/confluence-api-cli.js --search --cql "type=page AND text~\"<keyword>\"" --limit 20
+     node ~/Github/local-confluence-api-cli/confluence-api-cli.js --site <site-id> --search --cql "type=page AND text~\"<keyword>\"" --limit 20
      ```
    - If a space is known, narrow with `space=<space-key-or-id>` or list pages:
      ```bash
-     node ~/Github/local-confluence-api-cli/confluence-api-cli.js --list-pages --space-id <space-id> --limit 25
+     node ~/Github/local-confluence-api-cli/confluence-api-cli.js --site <site-id> --list-pages --space-id <space-id> --limit 25
      ```
 
 2. Inspect structure before content:
    - Page body:
      ```bash
-     node ~/Github/local-confluence-api-cli/confluence-api-cli.js --get-page <page-id>
+     node ~/Github/local-confluence-api-cli/confluence-api-cli.js --site <site-id> --get-page <page-id>
      ```
    - Child pages:
      ```bash
-     node ~/Github/local-confluence-api-cli/confluence-api-cli.js --get-children <page-id> --limit 50
+     node ~/Github/local-confluence-api-cli/confluence-api-cli.js --site <site-id> --get-children <page-id> --limit 50
      ```
    - Metadata:
      ```bash
-     node ~/Github/local-confluence-api-cli/confluence-api-cli.js --list-labels <page-id>
-     node ~/Github/local-confluence-api-cli/confluence-api-cli.js --list-properties <page-id>
-     node ~/Github/local-confluence-api-cli/confluence-api-cli.js --list-versions <page-id> --limit 10
+     node ~/Github/local-confluence-api-cli/confluence-api-cli.js --site <site-id> --list-labels <page-id>
+     node ~/Github/local-confluence-api-cli/confluence-api-cli.js --site <site-id> --list-properties <page-id>
+     node ~/Github/local-confluence-api-cli/confluence-api-cli.js --site <site-id> --list-versions <page-id> --limit 10
      ```
 
 3. Inspect related content carefully:
-   - Comments: `--list-comments <page-id> --limit 50`
-   - Attachments: `--list-attachments <page-id>`
+   - Comments: `--site <site-id> --list-comments <page-id> --limit 50`
+   - Attachments: `--site <site-id> --list-attachments <page-id>`
    - Download attachments only when the user asks or the artifact is necessary for the task.
    - Use narrow CQL queries and bounded limits for broad documentation searches.
 
@@ -88,21 +94,21 @@ This CLI uses `CONFLUENCE_DOMAIN`, `CONFLUENCE_EMAIL`, and `CONFLUENCE_API_TOKEN
 
 ```bash
 # Search pages
-node ~/Github/local-confluence-api-cli/confluence-api-cli.js --search --cql "type=page AND text~\"<keyword>\"" --limit 20
+node ~/Github/local-confluence-api-cli/confluence-api-cli.js --site <site-id> --search --cql "type=page AND text~\"<keyword>\"" --limit 20
 ```
 
 ```bash
 # Inspect page and children
-node ~/Github/local-confluence-api-cli/confluence-api-cli.js --get-page <page-id>
-node ~/Github/local-confluence-api-cli/confluence-api-cli.js --get-children <page-id> --limit 50
+node ~/Github/local-confluence-api-cli/confluence-api-cli.js --site <site-id> --get-page <page-id>
+node ~/Github/local-confluence-api-cli/confluence-api-cli.js --site <site-id> --get-children <page-id> --limit 50
 ```
 
 ```bash
 # Inspect metadata
-node ~/Github/local-confluence-api-cli/confluence-api-cli.js --list-labels <page-id>
-node ~/Github/local-confluence-api-cli/confluence-api-cli.js --list-properties <page-id>
-node ~/Github/local-confluence-api-cli/confluence-api-cli.js --list-comments <page-id> --limit 50
-node ~/Github/local-confluence-api-cli/confluence-api-cli.js --list-attachments <page-id>
+node ~/Github/local-confluence-api-cli/confluence-api-cli.js --site <site-id> --list-labels <page-id>
+node ~/Github/local-confluence-api-cli/confluence-api-cli.js --site <site-id> --list-properties <page-id>
+node ~/Github/local-confluence-api-cli/confluence-api-cli.js --site <site-id> --list-comments <page-id> --limit 50
+node ~/Github/local-confluence-api-cli/confluence-api-cli.js --site <site-id> --list-attachments <page-id>
 ```
 
 ## Final Answer
