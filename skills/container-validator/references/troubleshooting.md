@@ -293,6 +293,27 @@ volumes:
     consistency: cached
 ```
 
+### Apple Container (macOS, Apple silicon)
+
+**서비스 또는 커널이 준비되지 않음**:
+
+```bash
+container system start
+container system version
+container list --all
+```
+
+첫 실행에서 Linux 커널 설치를 묻는 프롬프트가 나타날 수 있다. 대화형 터미널에서 설치를 완료한 뒤 검증을 다시 실행한다. Apple Container는 Apple silicon Mac 전용이므로 Intel Mac 또는 Linux에서는 Docker, Podman, nerdctl을 사용한다.
+
+명령 또는 옵션을 찾을 수 없으면 설치된 버전의 지원 범위가 다를 수 있다. `container --version`과 `container <subcommand> --help`를 먼저 확인하고, 해당 릴리스의 공식 명령어 레퍼런스를 따른다.
+
+**이미지 정리 명령 차이**:
+
+```bash
+# Docker의 `docker rmi`가 아니라 Apple Container 명령을 사용
+container image delete <image>
+```
+
 ### Podman
 
 **네트워크 모드 차이**:

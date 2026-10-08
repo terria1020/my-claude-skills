@@ -32,7 +32,7 @@ class EnvironmentReport:
     runtimes: list = field(default_factory=list)
     orchestration: list = field(default_factory=list)
     lima_instances: list = field(default_factory=list)
-    environment_type: str = "unknown"  # native, lima, docker-desktop, etc.
+    environment_type: str = "unknown"  # native, apple-container, lima, docker-desktop, etc.
     recommended_runtime: Optional[str] = None
 
 
@@ -112,6 +112,9 @@ def detect_docker_context() -> Optional[str]:
 
 def determine_environment_type(runtimes: list[RuntimeInfo], lima_instances: list) -> str:
     """Determine the environment type based on detected tools."""
+    if any(rt.available and rt.name == "container" for rt in runtimes):
+        return "apple-container"
+
     docker_context = detect_docker_context()
 
     if docker_context:
@@ -138,7 +141,7 @@ def determine_environment_type(runtimes: list[RuntimeInfo], lima_instances: list
 
 def recommend_runtime(runtimes: list[RuntimeInfo], env_type: str) -> Optional[str]:
     """Recommend the best available runtime."""
-    priority = ["docker", "nerdctl", "podman", "crictl"]
+    priority = ["container", "docker", "nerdctl", "podman", "crictl"]
 
     available = {rt.name.lower(): rt for rt in runtimes if rt.available}
 
@@ -159,6 +162,7 @@ def detect_environment() -> EnvironmentReport:
 
     # Container runtimes
     runtime_checks = [
+        ("container", "container", ["--version"]),  # Apple Container for macOS
         ("docker", "docker", ["--version"]),
         ("podman", "podman", ["--version"]),
         ("nerdctl", "nerdctl", ["--version"]),
