@@ -53,7 +53,7 @@ container image delete myapp:latest
 container system stop
 ```
 
-Apple Container is macOS/Apple-silicon specific. Do not use it as the default in Linux CI; choose Docker, Podman, or nerdctl there.
+Apple Container is macOS/Apple-silicon specific. Do not use it as the default in Linux CI; choose Docker, Podman, or nerdctl there. `container k8s`는 로컬 단일 노드 클러스터용 실험 기능이며, 하위 명령과 옵션이 릴리스마다 변경될 수 있다. Kubernetes 검증에는 설치된 버전의 `container k8s --help`와 릴리스 문서를 우선 확인한다.
 
 ---
 
@@ -244,5 +244,5 @@ ctr -n k8s.io containers list  # Kubernetes 네임스페이스
 | Dockerfile 빌드 | O (BuildKit) | O | O | O (BuildKit) | X |
 | Docker Compose | X | O | podman-compose | nerdctl compose | X |
 | Rootless | X | O | O (기본) | O | - |
-| Kubernetes 호환 | - | - | O (Pod) | - | O |
+| Kubernetes 호환 | △ (experimental, 로컬 단일 노드) | - | O (Pod) | - | O |
 | 데몬 필요 | system service | O | X | X (containerd) | X |
