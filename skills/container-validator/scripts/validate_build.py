@@ -3,7 +3,7 @@
 Container Build Validation Script
 
 Validates Dockerfile builds and container execution.
-Supports multiple container runtimes: docker, podman, nerdctl.
+Supports multiple container runtimes: Apple Container, docker, podman, nerdctl.
 """
 
 import subprocess
@@ -69,10 +69,31 @@ def run_command(
 
 def detect_runtime() -> Optional[str]:
     """Detect available container runtime."""
-    for runtime in ["docker", "podman", "nerdctl"]:
+    for runtime in ["container", "docker", "podman", "nerdctl"]:
         if shutil.which(runtime):
             return runtime
     return None
+
+
+def prepare_runtime(runtime: str) -> Optional[ValidationResult]:
+    """Start runtime services required before image operations, when applicable."""
+    if runtime != "container":
+        return None
+
+    success, stdout, stderr, duration = run_command(
+        ["container", "system", "start"], timeout=120
+    )
+    return ValidationResult(
+        step="runtime_ready",
+        success=success,
+        message=(
+            "Apple Container system is ready"
+            if success else "Apple Container system failed to start"
+        ),
+        duration_seconds=duration,
+        output=stdout,
+        error=stderr
+    )
 
 
 def validate_dockerfile_syntax(dockerfile_path: str) -> ValidationResult:
@@ -197,7 +218,10 @@ def run_container(
 
 def cleanup_image(runtime: str, image_tag: str) -> ValidationResult:
     """Remove built image."""
-    cmd = [runtime, "rmi", "-f", image_tag]
+    if runtime == "container":
+        cmd = [runtime, "image", "delete", image_tag]
+    else:
+        cmd = [runtime, "rmi", "-f", image_tag]
     success, stdout, stderr, duration = run_command(cmd, timeout=60)
 
     return ValidationResult(
@@ -231,7 +255,7 @@ def validate_build(
             report.results.append(ValidationResult(
                 step="runtime_detection",
                 success=False,
-                message="No container runtime found (docker, podman, nerdctl)"
+                message="No container runtime found (container, docker, podman, nerdctl)"
             ))
             return report
 
@@ -254,6 +278,14 @@ def validate_build(
     if not syntax_result.success:
         report.total_duration = time.time() - start_time
         return report
+
+    # Apple Container needs its system services running before builds or runs.
+    runtime_result = prepare_runtime(runtime)
+    if runtime_result:
+        report.results.append(runtime_result)
+        if not runtime_result.success:
+            report.total_duration = time.time() - start_time
+            return report
 
     # Step 2: Build image
     build_result = build_image(
@@ -335,7 +367,7 @@ def main():
     )
     parser.add_argument(
         "-r", "--runtime",
-        choices=["docker", "podman", "nerdctl"],
+        choices=["container", "docker", "podman", "nerdctl"],
         help="Container runtime to use (auto-detect if not specified)"
     )
     parser.add_argument(

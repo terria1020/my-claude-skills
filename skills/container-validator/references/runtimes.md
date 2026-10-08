@@ -4,11 +4,56 @@
 
 ## Table of Contents
 
+- [Apple Container](#apple-container)
 - [Docker](#docker)
 - [Podman](#podman)
 - [nerdctl](#nerdctl)
 - [crictl](#crictl)
 - [containerd (ctr)](#containerd-ctr)
+
+---
+
+## Apple Container
+
+[apple/container](https://github.com/apple/container)은 Apple silicon Mac용 OCI 컨테이너 런타임이다. Dockerfile 또는 Containerfile 빌드는 BuildKit에서 수행하며, 컨테이너는 경량 VM으로 실행된다. 사용 전 시스템 서비스를 시작한다.
+
+명령과 옵션은 설치된 Apple Container 릴리스 및 macOS 버전에 따라 달라질 수 있다. 이 문서의 예시는 출발점으로만 사용하고, 실제 검증 전에는 `container --version`, `container <subcommand> --help` 및 사용 중인 릴리스의 공식 문서를 확인한다.
+
+```bash
+container --version
+container system start
+container list --all
+```
+
+### Build
+
+```bash
+container build --tag myapp:latest --file Dockerfile .
+container build --no-cache --tag myapp:latest .
+container build --build-arg VERSION=1.0 --tag myapp .
+```
+
+### Run
+
+```bash
+container run --rm myapp:latest echo container-ok
+container run --name myapp --detach --rm -p 8080:80 myapp:latest
+container run --env-file .env --volume ${PWD}:/app myapp:latest
+```
+
+### Status, logs, cleanup
+
+```bash
+container list --all
+container logs <container>
+container inspect <container-or-image>
+container stop <container>
+container image list
+container image delete myapp:latest
+container system stop
+```
+
+Apple Container is macOS/Apple-silicon specific. Do not use it as the default in Linux CI; choose Docker, Podman, or nerdctl there.
 
 ---
 
@@ -194,10 +239,10 @@ ctr -n k8s.io containers list  # Kubernetes 네임스페이스
 
 ## 런타임 비교
 
-| 기능 | Docker | Podman | nerdctl | crictl |
-|------|--------|--------|---------|--------|
-| Dockerfile 빌드 | O | O | O (BuildKit) | X |
-| Docker Compose | O | podman-compose | nerdctl compose | X |
-| Rootless | O | O (기본) | O | - |
-| Kubernetes 호환 | - | O (Pod) | - | O |
-| 데몬 필요 | O | X | X (containerd) | X |
+| 기능 | Apple Container | Docker | Podman | nerdctl | crictl |
+|------|-----------------|--------|--------|---------|--------|
+| Dockerfile 빌드 | O (BuildKit) | O | O | O (BuildKit) | X |
+| Docker Compose | X | O | podman-compose | nerdctl compose | X |
+| Rootless | X | O | O (기본) | O | - |
+| Kubernetes 호환 | - | - | O (Pod) | - | O |
+| 데몬 필요 | system service | O | X | X (containerd) | X |
