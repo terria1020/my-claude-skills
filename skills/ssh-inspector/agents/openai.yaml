@@ -1,4 +1,4 @@
 interface:
   display_name: "SSH Inspector"
-  short_description: "Inspect remote servers through local SSH credentials"
-  default_prompt: "Use $ssh-inspector to inspect the target server safely through the local SSH CLI."
+  short_description: "Inspect and operate remote servers (multi-host, tail, get/put) through local SSH credentials"
+  default_prompt: "Use $ssh-inspector to inspect the target server(s) safely through the local SSH CLI: check connectivity first, prefer JSON output, and confirm before any write."
