@@ -17,22 +17,39 @@ The CLI is [local-ssh-connect-cli](https://github.com/terria1020/local-ssh-conne
 
 ### Invocation
 
-Use whichever is available (examples below write it as `lssh`):
+Examples in this skill write the CLI as `lssh`. Resolve what is actually available **in the shell your tool runs in** (non-interactive — aliases from `~/.zshrc`/`~/.bashrc` are **not** loaded there, so an alias created with `--print-alias` does not count):
+
+| How it is installed | Works in agent shells? | Use |
+| --- | --- | --- |
+| `npm link` (a real `lssh` / `local-ssh-connect-cli` executable on `PATH`) | yes | `lssh ...` |
+| Shell alias (`--print-alias`) | **no** (interactive shells only) | use the function below |
+| Only the repository checkout | yes | `node ~/Github/local-ssh-connect-cli/local-ssh-connect-cli.js ...` |
+
+Every Bash call is a fresh shell, so define the fallback **inside the same command** that uses it:
 
 ```bash
-lssh ...                                                    # after `npm link`
-node ~/Github/local-ssh-connect-cli/local-ssh-connect-cli.js ...   # always works
+command -v lssh >/dev/null 2>&1 || lssh() { node "$HOME/Github/local-ssh-connect-cli/local-ssh-connect-cli.js" "$@"; }
+lssh -i <id> --check --json
 ```
 
-If the user has not installed the short command, `lssh --print-alias` / `node …/local-ssh-connect-cli.js --print-alias` prints an alias line they can add to their shell profile. Do not edit shell profiles yourself.
+**Do not store the command in a string variable** (`L="node …/cli.js"; $L -i …`). zsh — the default shell on macOS — does not word-split unquoted variables, so it looks for a command literally named `node /…/cli.js` and fails with `command not found`; any `2>&1 | python3 -c 'json.load…'` after it then dies with a misleading `JSONDecodeError … line 1 column 1`. Use the function above (or `lssh`) instead, and do not append `2>&1` before a JSON parser — in `--json` mode the result is on stdout only.
+
+If no short command is installed and the user wants one, suggest `npm link` in the CLI directory (works everywhere), or `lssh --print-alias` / `node …/local-ssh-connect-cli.js --print-alias` for an alias line they can add to their profile (interactive shells only). Do not edit shell profiles yourself.
 
 ### Setup Check
 
-Before running any CLI command, verify the CLI exists and is new enough:
+Run this once before any CLI command. It resolves the invocation, then checks the CLI exists and is new enough:
 
 ```bash
-[ -f ~/Github/local-ssh-connect-cli/local-ssh-connect-cli.js ] || echo "CLI not found"
-node ~/Github/local-ssh-connect-cli/local-ssh-connect-cli.js --help | grep -q -- '--ndjson' || echo "CLI too old (need v1.1+)"
+if command -v lssh >/dev/null 2>&1; then
+  echo "invocation: lssh (on PATH)"
+elif [ -f "$HOME/Github/local-ssh-connect-cli/local-ssh-connect-cli.js" ]; then
+  lssh() { node "$HOME/Github/local-ssh-connect-cli/local-ssh-connect-cli.js" "$@"; }
+  echo "invocation: node ~/Github/local-ssh-connect-cli/local-ssh-connect-cli.js (define the lssh() function above in each command)"
+else
+  echo "CLI not found"; exit 1
+fi
+lssh --help | grep -q -- '--ndjson' && echo "CLI v1.1+ ok" || echo "CLI too old (need v1.1+)"
 ```
 
 - Missing → **stop** and instruct the user:
@@ -40,6 +57,7 @@ node ~/Github/local-ssh-connect-cli/local-ssh-connect-cli.js --help | grep -q --
   git clone https://github.com/terria1020/local-ssh-connect-cli ~/Github/local-ssh-connect-cli
   cd ~/Github/local-ssh-connect-cli && npm install
   ```
+  Optionally `npm link` there to get a real `lssh` command.
 - Too old → ask the user to `git -C ~/Github/local-ssh-connect-cli pull && npm install`. The v1.0 flags (`-i`, `-c`, `--get-credential-list`) still work, but without JSON output, multi-host, `--check`, or `tail`/`get`/`put`; fall back to single-host `-i/-c` usage and say so.
 - Credentials not configured → **stop** and direct the user to the CLI's README (`ssh-credentials.json`). Do not read credential files or work around missing auth.
 
@@ -116,6 +134,7 @@ Use `--script-file <path>` for an existing script and `--shell bash` when the sc
 | `connection_lost` / `ssh_error` | Connection dropped / unclassified SSH failure | Report stderr (redacted); retry once at most |
 | `exec_timeout` | `--exec-timeout` hit | Report; raise the limit only if the command is legitimately slow |
 | `config_error` / `io_error` | Local problem (missing key file, bad id, local file) | Fix locally; nothing ran remotely |
+| *(no JSON at all, `command not found`)* | The shell could not run the CLI — often a `$VAR` command in zsh, or `lssh` being an alias | See **Invocation**; nothing reached the CLI |
 
 Process exit codes: `0` ok; single host → remote exit code, `255` SSH-level failure, `124` exec timeout, `127` cannot start ssh, `74` local I/O error; `2` usage/config error; `1` several hosts and at least one failed. Prefer `--json` and inspect each result.
 
